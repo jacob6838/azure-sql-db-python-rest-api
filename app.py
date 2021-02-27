@@ -1,3 +1,6 @@
+import subprocess
+subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+
 from flask import Flask, request
 from azure.storage.blob import BlobServiceClient
 from flask_restful import Resource, Api
@@ -47,5 +50,5 @@ api.add_resource(RSM_XML_LIST, '/rsm/xml-list')
 api.add_resource(RSM_UPER, '/rsm/uper/<string:rsm_name>')
 api.add_resource(RSM_UPER_LIST, '/rsm/uper-list')
 
-# if __name__ == '__main__':
-#     app.run() #debug=True
+if __name__ == '__main__':
+    app.run() #debug=True
