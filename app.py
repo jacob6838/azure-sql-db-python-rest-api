@@ -1,5 +1,5 @@
 import subprocess
-# subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
 
 import os
 import pyodbc
@@ -13,7 +13,7 @@ from flask_restful import Resource, Api
 app = Flask(__name__)
 api = Api(app)
 
-storage_conn_str = 'DefaultEndpointsProtocol=https;AccountName=neaeraiotstorage;AccountKey=gSFq2szM88ag0BV/J7QqzoXdak1aIGsUgyWagsR/96mlVnQhdOTnns6D7z8nOgRUdQy3FdbMxEmufrCqmE6mdw==;EndpointSuffix=core.windows.net'# os.environ['storage_connection_string']
+storage_conn_str = os.environ['storage_connection_string']
 blob_service_client = BlobServiceClient.from_connection_string(storage_conn_str)
 
 # incremented primary keys
@@ -80,8 +80,7 @@ blob_service_client = BlobServiceClient.from_connection_string(storage_conn_str)
 
 # push invalid data to pubsub topic
 
-sql_conn_str = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:wzdc-api-server.database.windows.net,1433;Database=wzdc-api-database;Uid=wzdc-api-user;Pwd=8QNiutu8fgBm;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'# os.environ['sql_connection_string']
-#DRIVER={SQL Server};SERVER=;DATABASE=;UID=;PWD=;
+sql_conn_str = os.environ['sql_connection_string']
 cnxn = pyodbc.connect(sql_conn_str)
 cursor = cnxn.cursor()
 
