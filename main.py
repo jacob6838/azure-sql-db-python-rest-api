@@ -11,19 +11,13 @@ app = FastAPI(title="Work Zone Data Collection Tool Rest API")
 # app = Flask(__name__)
 # api = Api(app)
 
-storage_conn_str = 'DefaultEndpointsProtocol=https;AccountName=neaeraiotstorage;AccountKey=gSFq2szM88ag0BV/J7QqzoXdak1aIGsUgyWagsR/96mlVnQhdOTnns6D7z8nOgRUdQy3FdbMxEmufrCqmE6mdw==;EndpointSuffix=core.windows.net'
-sql_conn_str = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:wzdc-api-server.database.windows.net,1433;Database=wzdc-api-database;Uid=wzdc-api-user;Pwd=8QNiutu8fgBm;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
-# storage_conn_str = os.environ['storage_connection_string']
-# sql_conn_str = os.environ['sql_connection_string']
+# storage_conn_str = 'DefaultEndpointsProtocol=https;AccountName=neaeraiotstorage;AccountKey=gSFq2szM88ag0BV/J7QqzoXdak1aIGsUgyWagsR/96mlVnQhdOTnns6D7z8nOgRUdQy3FdbMxEmufrCqmE6mdw==;EndpointSuffix=core.windows.net'
+# sql_conn_str = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:wzdc-api-server.database.windows.net,1433;Database=wzdc-api-database;Uid=wzdc-api-user;Pwd=8QNiutu8fgBm;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+storage_conn_str = os.environ['storage_connection_string']
+sql_conn_str = os.environ['sql_connection_string']
 blob_service_client = BlobServiceClient.from_connection_string(storage_conn_str)
 
-auth_email = "tony@neaeraconsulting.com"
-
-# incremented primary keys
-# datetime entered
-# datetime updates
-# isDeleted
-
+auth_email = os.environ('auth_contact_email') # "tony@neaeraconsulting.com"
 
 # # --------------------------
 # CREATE TABLE ApiKeys (
@@ -35,63 +29,17 @@ auth_email = "tony@neaeraconsulting.com"
 # 	IsDeleted bit,
 # );
 
-
-# # --------------------------
-# CREATE PROCEDURE create_key @key varchar(64)
-# AS
-
-# insert into ApiKeys (ApiKeyHash, DateCreated)
-# values(@key, GETDATE())
-
-# GO;
-
-
-# # --------------------------
-# CREATE PROCEDURE create_key_with_email @key varchar(64), @email varchar(254)
-# AS
-
-# insert into ApiKeys (ApiKeyHash, Email, DateCreated)
-# values(@key, @email, GETDATE())
-
-# GO;
-
-
-# # --------------------------
-# CREATE PROCEDURE delete_key @key varchar(64)
-# AS
-
-# delete from ApiKeys where ApiKeyHash = @key
-
-# GO;
-
-
-# # --------------------------
-# CREATE PROCEDURE find_key @key varchar(64)
-# AS
-
-# select 1 from ApiKeys where ApiKeyHash = @key and (IsDeleted != 1 or IsDeleted is null)
-
-# GO;
-
-
-
-
-
-
-# validate incident data function
-# check for required fields
-
-# push invalid data to pubsub topic
-
 cnxn = pyodbc.connect(sql_conn_str)
 cursor = cnxn.cursor()
 
-storedProcCreate = 'exec create_key @key = \'{0}\''
-storedProcCreateWithEmail = "exec create_key_with_email @key = \'{0}\' @email = \'{1}\'"
-storedProcDelete = "exec delete_key @key = \'{0}\'"
-storedProcFind = "exec find_key @key = \'{0}\'"
+# storedProcCreate = 'exec create_key @key = \'{0}\''
+# storedProcCreateWithEmail = "exec create_key_with_email @key = \'{0}\' @email = \'{1}\'"
+# storedProcDelete = "exec delete_key @key = \'{0}\'"
+storedProcFind = os.environ('stored_procedure_find_key') # "exec find_key @key = \'{0}\'"
 
 authorization_key_header = 'auth_key'
+
+container_name = os.environ('source_container_name')
 
 @app.get("/")
 def read_root():
@@ -104,7 +52,6 @@ def get_rsm_file(rsm_name: str, request: Request):
     if not valid:
         get_correct_response(auth_key)
     
-    container_name = 'publishedworkzones'
     blob_name = 'rsm-xml/' + rsm_name
 
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
@@ -226,22 +173,3 @@ def find_key(key_hash):
         return True
     else:
         return False
-
-def exec_sql(cmd):
-    cursor.execute(cmd)
-    row = cursor.fetchone()
-    while row:
-        # Print the row
-        print(row)
-        row = cursor.fetchone()
-
-# api.add_resource(MANAGEMENT, '/new-user/<string:email>')
-
-# api.add_resource(RSM_XML, '/rsm/xml/<string:rsm_name>')
-# api.add_resource(RSM_XML_LIST, '/rsm/xml-list')
-# api.add_resource(RSM_UPER, '/rsm/uper/<string:rsm_name>')
-# api.add_resource(RSM_UPER_LIST, '/rsm/uper-list')
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-    
