@@ -3,8 +3,6 @@ fastapi
 pyodbc
 azure-core
 gunicorn
-h11
-# psycopg2-binary
 uvicorn
-starlette
-websockets
+uvloop
+httptools
