@@ -72,7 +72,6 @@ def get_rsm_files_list(request: Request):
     if not valid:
         get_correct_response(auth_key)
     
-    container_name = 'publishedworkzones'
     container_client = blob_service_client.get_container_client(container_name)
     blob_list = container_client.list_blobs(name_starts_with='rsm-xml/')
     blob_names = []
@@ -87,7 +86,6 @@ def get_rsm_uper_file(rsm_name, request: Request):
     if not valid:
         get_correct_response(auth_key)
     
-    container_name = 'publishedworkzones'
     blob_name = 'rsm-uper/' + rsm_name
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
 
@@ -106,7 +104,6 @@ def get_rsm_uper_files_list(request: Request):
     if not valid:
         get_correct_response(auth_key)
     
-    container_name = 'publishedworkzones'
     container_client = blob_service_client.get_container_client(container_name)
     blob_list = container_client.list_blobs(name_starts_with='rsm-uper/')
     blob_names = []
