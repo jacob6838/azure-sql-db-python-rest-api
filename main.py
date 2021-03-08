@@ -5,7 +5,7 @@ import uuid
 
 from fastapi import FastAPI, Header, HTTPException, status, Request
 from azure.storage.blob import BlobServiceClient
-import azure
+from azure.core.exceptions import ResourceNotFoundError
 
 app = FastAPI(title="Work Zone Data Collection Tool Rest API")
 # app = Flask(__name__)
@@ -111,7 +111,7 @@ def get_rsm_file(rsm_name: str, request: Request):
 
     try:
         return {'data': blob_client.download_blob().readall().decode('utf-8')}
-    except azure.core.exceptions.ResourceNotFoundError as e:
+    except ResourceNotFoundError as e:
         raise HTTPException(
             status_code=404,
             detail="Specified xml RSM file not found. Try /rsm/xml-list to return a list of current RSM files",
@@ -146,7 +146,7 @@ def get_rsm_uper_file(rsm_name, request: Request):
 
     try:
         return {'data': str(blob_client.download_blob().readall())}
-    except azure.core.exceptions.ResourceNotFoundError as e:
+    except ResourceNotFoundError as e:
         raise HTTPException(
             status_code=404,
             detail="Specified uper RSM file not found. Try /rsm/uper-list to return a list of current RSM files",
