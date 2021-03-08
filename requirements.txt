@@ -1,4 +1,4 @@
 azure-storage-blob
 fastapi
 pyodbc
-azure-core-exceptions
+azure-core
