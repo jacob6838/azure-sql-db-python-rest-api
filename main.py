@@ -242,6 +242,6 @@ def exec_sql(cmd):
 # api.add_resource(RSM_UPER, '/rsm/uper/<string:rsm_name>')
 # api.add_resource(RSM_UPER_LIST, '/rsm/uper-list')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
     

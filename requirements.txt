@@ -2,7 +2,9 @@ azure-storage-blob
 fastapi
 pyodbc
 azure-core
-uvicorn
 gunicorn
-uvloop
-httptools
+h11
+# psycopg2-binary
+uvicorn
+starlette
+websockets
