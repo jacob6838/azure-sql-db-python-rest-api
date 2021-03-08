@@ -2,3 +2,5 @@ azure-storage-blob
 fastapi
 pyodbc
 azure-core
+uvicorn
+gunicorn
