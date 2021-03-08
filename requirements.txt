@@ -1,4 +1,3 @@
 azure-storage-blob
-flask
-flask-restful
+fastapi
 pyodbc
