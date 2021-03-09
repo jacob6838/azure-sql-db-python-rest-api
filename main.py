@@ -35,7 +35,7 @@ app = FastAPI(
     description="This API hosts work zone data collected by the WZDC " + 
         "(work zone data collection) tool. This data includes RSM messages, both in xml and uper (binary) formats. This API " + 
         f"requires an APi key in the header. Contact {auth_email} for more information on how to acquire and use an API key.",
-    docs_url="/"
+    docs_url="/",
     openapi_tags=tags_metadata)
 # app = Flask(__name__)
 # api = Api(app)
