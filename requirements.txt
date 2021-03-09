@@ -1,4 +1,8 @@
 azure-storage-blob
-flask
-flask-restful
+fastapi
 pyodbc
+azure-core
+gunicorn
+uvicorn
+uvloop
+httptools
