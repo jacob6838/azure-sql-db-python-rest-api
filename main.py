@@ -17,7 +17,7 @@ storage_conn_str = os.environ['storage_connection_string']
 sql_conn_str = os.environ['sql_connection_string']
 blob_service_client = BlobServiceClient.from_connection_string(storage_conn_str)
 
-auth_email = os.environ('auth_contact_email') # "tony@neaeraconsulting.com"
+auth_email = os.environ['auth_contact_email'] # "tony@neaeraconsulting.com"
 
 # # --------------------------
 # CREATE TABLE ApiKeys (
@@ -35,11 +35,11 @@ cursor = cnxn.cursor()
 # storedProcCreate = 'exec create_key @key = \'{0}\''
 # storedProcCreateWithEmail = "exec create_key_with_email @key = \'{0}\' @email = \'{1}\'"
 # storedProcDelete = "exec delete_key @key = \'{0}\'"
-storedProcFind = os.environ('stored_procedure_find_key') # "exec find_key @key = \'{0}\'"
+storedProcFind = os.environ['stored_procedure_find_key'] # "exec find_key @key = \'{0}\'"
 
 authorization_key_header = 'auth_key'
 
-container_name = os.environ('source_container_name')
+container_name = os.environ['source_container_name']
 
 @app.get("/")
 def read_root():
