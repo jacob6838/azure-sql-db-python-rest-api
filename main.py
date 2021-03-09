@@ -7,7 +7,7 @@ from fastapi import FastAPI, Header, HTTPException, status, Request
 from azure.storage.blob import BlobServiceClient
 from azure.core.exceptions import ResourceNotFoundError
 
-auth_email = os.environ['auth_contact_email'] # "tony@neaeraconsulting.com"
+auth_email = os.environ['auth_contact_email']
 
 tags_metadata = [
     {
@@ -37,43 +37,21 @@ app = FastAPI(
         f"requires an APi key in the header. Contact {auth_email} for more information on how to acquire and use an API key.",
     docs_url="/",
     openapi_tags=tags_metadata)
-# app = Flask(__name__)
-# api = Api(app)
 
-# storage_conn_str = 'DefaultEndpointsProtocol=https;AccountName=neaeraiotstorage;AccountKey=gSFq2szM88ag0BV/J7QqzoXdak1aIGsUgyWagsR/96mlVnQhdOTnns6D7z8nOgRUdQy3FdbMxEmufrCqmE6mdw==;EndpointSuffix=core.windows.net'
-# sql_conn_str = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:wzdc-api-server.database.windows.net,1433;Database=wzdc-api-database;Uid=wzdc-api-user;Pwd=8QNiutu8fgBm;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 storage_conn_str = os.environ['storage_connection_string']
 sql_conn_str = os.environ['sql_connection_string']
 blob_service_client = BlobServiceClient.from_connection_string(storage_conn_str)
 
-
-# # --------------------------
-# CREATE TABLE ApiKeys (
-#     ID int NOT NULL IDENTITY(1,1),
-#     ApiKeyHash varchar(64) NOT NULL UNIQUE,
-#     Email varchar(320),
-#     DateCreated DATETIME NOT NULL,
-#     DateUpdated DATETIME,
-# 	IsDeleted bit,
-# );
-
 cnxn = pyodbc.connect(sql_conn_str)
 cursor = cnxn.cursor()
 
-# storedProcCreate = 'exec create_key @key = \'{0}\''
-# storedProcCreateWithEmail = "exec create_key_with_email @key = \'{0}\' @email = \'{1}\'"
-# storedProcDelete = "exec delete_key @key = \'{0}\'"
-storedProcFind = os.environ['stored_procedure_find_key'] # "exec find_key @key = \'{0}\'"
+storedProcFind = os.environ['stored_procedure_find_key']
 
 authorization_key_header = 'auth_key'
 
 container_name = os.environ['source_container_name']
 
-# @app.get("/")
-# def read_root():
-#     return {"Hello": "World"}
-
-@app.get("/rsm/xml-list/", tags=["xml-list"]) #, response_model=schemas.User
+@app.get("/rsm/xml-list/", tags=["xml-list"])
 def get_rsm_files_list(request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
@@ -87,7 +65,7 @@ def get_rsm_files_list(request: Request):
         blob_names.append({'name': blob.name, 'etag': blob.etag})
     return {'data': blob_names}
 
-@app.get("/rsm/xml/{rsm_name}", tags=["xml-file"]) #, response_model=schemas.User
+@app.get("/rsm/xml/{rsm_name}", tags=["xml-file"])
 def get_rsm_file(rsm_name: str, request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
@@ -106,7 +84,7 @@ def get_rsm_file(rsm_name: str, request: Request):
             detail="Specified xml RSM file not found. Try /rsm/xml-list to return a list of current RSM files",
         )
 
-@app.get("/rsm/uper-list/", tags=["uper-list"]) #, response_model=schemas.User
+@app.get("/rsm/uper-list/", tags=["uper-list"])
 def get_rsm_uper_files_list(request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
@@ -120,7 +98,7 @@ def get_rsm_uper_files_list(request: Request):
         blob_names.append({'name': blob.name, 'etag': blob.etag})
     return {'data': blob_names}
 
-@app.get("/rsm/uper/{rsm_name}", tags=["uper-file"]) #, response_model=schemas.User
+@app.get("/rsm/uper/{rsm_name}", tags=["uper-file"])
 def get_rsm_uper_file(rsm_name, request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
@@ -137,15 +115,6 @@ def get_rsm_uper_file(rsm_name, request: Request):
             status_code=404,
             detail="Specified uper RSM file not found. Try /rsm/uper-list to return a list of current RSM files",
         )
-
-# def get(self, email):
-#     print(email)
-#     key = create_key()
-
-#     if key:
-#         return {'auth_key': key, 'instructions': "Save this key and add it to the header of your future API calls as '{0}'".format(authorization_key_header)}
-#     else:
-#         return 'Failed to create credential', 500
 
 def authenticate_key(key):
     try:
@@ -173,20 +142,6 @@ def get_correct_response(auth_key):
 #     key_hash = str(hashlib.sha256(key.encode()).hexdigest())
 #     print(key_hash)
 #     return key, key_hash
-
-# def create_key():
-#     key, key_hash = generate_key()
-    
-#     try:
-#         cursor.execute(storedProcCreate.format(key_hash))
-#         cnxn.commit()
-#         # for result in cursor.stored_results():
-#         #     print(result.fetchall())
-#     except Exception as e:
-#         print(e)
-#         return None
-
-#     return key
 
 def find_key(key_hash):
     cursor.execute(storedProcFind.format(key_hash))
