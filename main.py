@@ -11,21 +11,21 @@ auth_email = os.environ['auth_contact_email'] # "tony@neaeraconsulting.com"
 
 tags_metadata = [
     {
-        "name": "List rsm xml files",
+        "name": "xml-list",
         "description": "Get list of current RSM xml files, with etags (unique identifiers that change " + 
             "when a file is updated, you can save them and determine if you need to re-download updated files",
     },
     {
-        "name": "Download RSM xml file",
+        "name": "xml-file",
         "description": "Download an individual RSM xml file by name (including extension)",
     },
     {
-        "name": "List rsm uper files",
+        "name": "uper-list",
         "description": "Get list of current RSM uper (binary) files, with etags (unique identifiers " + 
             "that change when a file is updated, you can save them and determine if you need to re-download updated files",
     },
     {
-        "name": "Download RSM uper file",
+        "name": "uper-file",
         "description": "Download an individual RSM uper file by name (including extension)",
     },
 ]
@@ -35,6 +35,7 @@ app = FastAPI(
     description="This API hosts work zone data collected by the WZDC " + 
         "(work zone data collection) tool. This data includes RSM messages, both in xml and uper (binary) formats. This API " + 
         f"requires an APi key in the header. Contact {auth_email} for more information on how to acquire and use an API key.",
+    docs_url="/"
     openapi_tags=tags_metadata)
 # app = Flask(__name__)
 # api = Api(app)
@@ -68,12 +69,11 @@ authorization_key_header = 'auth_key'
 
 container_name = os.environ['source_container_name']
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+# @app.get("/")
+# def read_root():
+#     return {"Hello": "World"}
 
-
-@app.get("/rsm/xml-list/") #, response_model=schemas.User
+@app.get("/rsm/xml-list/", tags=["xml-list"]) #, response_model=schemas.User
 def get_rsm_files_list(request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
@@ -87,7 +87,7 @@ def get_rsm_files_list(request: Request):
         blob_names.append({'name': blob.name, 'etag': blob.etag})
     return {'data': blob_names}
 
-@app.get("/rsm/xml/{rsm_name}") #, response_model=schemas.User
+@app.get("/rsm/xml/{rsm_name}", tags=["xml-file"]) #, response_model=schemas.User
 def get_rsm_file(rsm_name: str, request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
@@ -106,7 +106,7 @@ def get_rsm_file(rsm_name: str, request: Request):
             detail="Specified xml RSM file not found. Try /rsm/xml-list to return a list of current RSM files",
         )
 
-@app.get("/rsm/uper-list/") #, response_model=schemas.User
+@app.get("/rsm/uper-list/", tags=["uper-list"]) #, response_model=schemas.User
 def get_rsm_uper_files_list(request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
@@ -120,7 +120,7 @@ def get_rsm_uper_files_list(request: Request):
         blob_names.append({'name': blob.name, 'etag': blob.etag})
     return {'data': blob_names}
 
-@app.get("/rsm/uper/{rsm_name}") #, response_model=schemas.User
+@app.get("/rsm/uper/{rsm_name}", tags=["uper-file"]) #, response_model=schemas.User
 def get_rsm_uper_file(rsm_name, request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
