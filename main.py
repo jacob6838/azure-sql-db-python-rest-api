@@ -7,7 +7,35 @@ from fastapi import FastAPI, Header, HTTPException, status, Request
 from azure.storage.blob import BlobServiceClient
 from azure.core.exceptions import ResourceNotFoundError
 
-app = FastAPI(title="Work Zone Data Collection Tool Rest API")
+auth_email = os.environ['auth_contact_email'] # "tony@neaeraconsulting.com"
+
+tags_metadata = [
+    {
+        "name": "List rsm xml files",
+        "description": "Get list of current RSM xml files, with etags (unique identifiers that change " + 
+            "when a file is updated, you can save them and determine if you need to re-download updated files",
+    },
+    {
+        "name": "Download RSM xml file",
+        "description": "Download an individual RSM xml file by name (including extension)",
+    },
+    {
+        "name": "List rsm uper files",
+        "description": "Get list of current RSM uper (binary) files, with etags (unique identifiers " + 
+            "that change when a file is updated, you can save them and determine if you need to re-download updated files",
+    },
+    {
+        "name": "Download RSM uper file",
+        "description": "Download an individual RSM uper file by name (including extension)",
+    },
+]
+
+app = FastAPI(
+    title="Work Zone Data Collection Tool Rest API", 
+    description="This API hosts work zone data collected by the WZDC " + 
+        "(work zone data collection) tool. This data includes RSM messages, both in xml and uper (binary) formats. This API " + 
+        f"requires an APi key in the header. Contact {auth_email} for more information on how to acquire and use an API key.",
+    openapi_tags=tags_metadata)
 # app = Flask(__name__)
 # api = Api(app)
 
@@ -17,7 +45,6 @@ storage_conn_str = os.environ['storage_connection_string']
 sql_conn_str = os.environ['sql_connection_string']
 blob_service_client = BlobServiceClient.from_connection_string(storage_conn_str)
 
-auth_email = os.environ['auth_contact_email'] # "tony@neaeraconsulting.com"
 
 # # --------------------------
 # CREATE TABLE ApiKeys (
@@ -45,6 +72,21 @@ container_name = os.environ['source_container_name']
 def read_root():
     return {"Hello": "World"}
 
+
+@app.get("/rsm/xml-list/") #, response_model=schemas.User
+def get_rsm_files_list(request: Request):
+    auth_key = request.headers.get(authorization_key_header)
+    valid = authenticate_key(auth_key)
+    if not valid:
+        get_correct_response(auth_key)
+    
+    container_client = blob_service_client.get_container_client(container_name)
+    blob_list = container_client.list_blobs(name_starts_with='rsm-xml/')
+    blob_names = []
+    for blob in blob_list:
+        blob_names.append({'name': blob.name, 'etag': blob.etag})
+    return {'data': blob_names}
+
 @app.get("/rsm/xml/{rsm_name}") #, response_model=schemas.User
 def get_rsm_file(rsm_name: str, request: Request):
     auth_key = request.headers.get(authorization_key_header)
@@ -64,16 +106,15 @@ def get_rsm_file(rsm_name: str, request: Request):
             detail="Specified xml RSM file not found. Try /rsm/xml-list to return a list of current RSM files",
         )
 
-
-@app.get("/rsm/xml-list/") #, response_model=schemas.User
-def get_rsm_files_list(request: Request):
+@app.get("/rsm/uper-list/") #, response_model=schemas.User
+def get_rsm_uper_files_list(request: Request):
     auth_key = request.headers.get(authorization_key_header)
     valid = authenticate_key(auth_key)
     if not valid:
         get_correct_response(auth_key)
     
     container_client = blob_service_client.get_container_client(container_name)
-    blob_list = container_client.list_blobs(name_starts_with='rsm-xml/')
+    blob_list = container_client.list_blobs(name_starts_with='rsm-uper/')
     blob_names = []
     for blob in blob_list:
         blob_names.append({'name': blob.name, 'etag': blob.etag})
@@ -96,20 +137,6 @@ def get_rsm_uper_file(rsm_name, request: Request):
             status_code=404,
             detail="Specified uper RSM file not found. Try /rsm/uper-list to return a list of current RSM files",
         )
-
-@app.get("/rsm/uper-list/") #, response_model=schemas.User
-def get_rsm_uper_files_list(request: Request):
-    auth_key = request.headers.get(authorization_key_header)
-    valid = authenticate_key(auth_key)
-    if not valid:
-        get_correct_response(auth_key)
-    
-    container_client = blob_service_client.get_container_client(container_name)
-    blob_list = container_client.list_blobs(name_starts_with='rsm-uper/')
-    blob_names = []
-    for blob in blob_list:
-        blob_names.append({'name': blob.name, 'etag': blob.etag})
-    return {'data': blob_names}
 
 # def get(self, email):
 #     print(email)
